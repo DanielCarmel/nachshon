@@ -7,6 +7,25 @@ from typing import List, Optional, Any, Union
 from enum import Enum, auto
 from lexer import Token, TokenType, Lexer, LexerError
 
+# Built-in function tokens that can also be used as identifiers (variable/parameter names)
+# טוקנים של פונקציות מובנות שיכולים לשמש גם כשמות משתנים/פרמטרים
+BUILTIN_FUNCTION_TOKENS = {
+    TokenType.PRINT, TokenType.INPUT, TokenType.LEN, TokenType.TYPE,
+    TokenType.RANGE, TokenType.INT, TokenType.FLOAT, TokenType.STR,
+    TokenType.LIST, TokenType.DICT, TokenType.SET, TokenType.BOOL,
+    TokenType.ABS, TokenType.SUM, TokenType.MIN, TokenType.MAX,
+    TokenType.SORTED, TokenType.REVERSED, TokenType.ENUMERATE,
+    TokenType.ZIP, TokenType.MAP, TokenType.FILTER, TokenType.OPEN,
+}
+
+# Tokens that can be used as attribute/method names (after a dot)
+# These include builtins plus keywords that might be used as method names
+ATTRIBUTE_TOKENS = BUILTIN_FUNCTION_TOKENS | {
+    TokenType.NONE,  # ריק - can be a method name
+    TokenType.TRUE,  # אמת
+    TokenType.FALSE, # שקר
+}
+
 
 class NodeType(Enum):
     """AST Node types - סוגי צמתים בעץ התחביר"""
@@ -27,6 +46,7 @@ class NodeType(Enum):
     UNARY_OP = auto()
     COMPARISON = auto()
     LOGICAL_OP = auto()
+    TERNARY = auto()
     CALL = auto()
     IDENTIFIER = auto()
     NUMBER = auto()
@@ -470,6 +490,21 @@ class ListCompNode(ASTNode):
         self.condition = condition
 
 
+@dataclass
+class TernaryNode(ASTNode):
+    """Ternary conditional expression - ביטוי תנאי (value אם condition אחרת alternative)"""
+    true_value: ASTNode = None   # The value if condition is true
+    condition: ASTNode = None    # The condition to evaluate
+    false_value: ASTNode = None  # The value if condition is false
+    
+    def __init__(self, true_value: ASTNode, condition: ASTNode, false_value: ASTNode,
+                 line: int = 0, column: int = 0):
+        super().__init__(NodeType.TERNARY, line, column)
+        self.true_value = true_value
+        self.condition = condition
+        self.false_value = false_value
+
+
 class ParserError(Exception):
     """Error during parsing - שגיאת ניתוח תחבירי"""
     def __init__(self, message: str, line: int, column: int):
@@ -512,6 +547,22 @@ class Parser:
             msg = message or f"ציפיתי ל־{token_type.name}, אבל מצאתי {token.type.name}"
             raise ParserError(msg, token.line, token.column)
         return self.advance()
+    
+    def expect_identifier_or_builtin(self, message: str = None) -> Token:
+        """Expect identifier or builtin function token (which can be used as identifier)"""
+        token = self.current_token()
+        if token.type == TokenType.IDENTIFIER or token.type in BUILTIN_FUNCTION_TOKENS:
+            return self.advance()
+        msg = message or f"ציפיתי לשם, אבל מצאתי {token.type.name}"
+        raise ParserError(msg, token.line, token.column)
+    
+    def expect_attribute_name(self, message: str = None) -> Token:
+        """Expect identifier or any token that can be used as attribute/method name"""
+        token = self.current_token()
+        if token.type == TokenType.IDENTIFIER or token.type in ATTRIBUTE_TOKENS:
+            return self.advance()
+        msg = message or f"ציפיתי לשם תכונה, אבל מצאתי {token.type.name}"
+        raise ParserError(msg, token.line, token.column)
     
     def skip_newlines(self) -> None:
         """Skip newline tokens"""
@@ -576,7 +627,7 @@ class Parser:
     def parse_function_def(self, decorators: List[ASTNode] = None) -> FunctionDefNode:
         """Parse function definition - הגדר"""
         token = self.expect(TokenType.DEF)
-        name_token = self.expect(TokenType.IDENTIFIER, "ציפיתי לשם פונקציה")
+        name_token = self.expect_attribute_name("ציפיתי לשם פונקציה")
         name = name_token.value
         
         self.expect(TokenType.LPAREN, "ציפיתי ל־'('")
@@ -584,8 +635,18 @@ class Parser:
         defaults = []
         
         while self.current_token().type != TokenType.RPAREN:
-            param_token = self.expect(TokenType.IDENTIFIER, "ציפיתי לשם פרמטר")
-            params.append(param_token.value)
+            # Check for *args or **kwargs
+            prefix = ""
+            if self.current_token().type == TokenType.MULTIPLY:
+                self.advance()
+                if self.current_token().type == TokenType.MULTIPLY:
+                    self.advance()
+                    prefix = "**"
+                else:
+                    prefix = "*"
+            
+            param_token = self.expect_identifier_or_builtin("ציפיתי לשם פרמטר")
+            params.append(prefix + param_token.value)
             
             # Check for default value
             if self.current_token().type == TokenType.ASSIGN:
@@ -686,7 +747,7 @@ class Parser:
     def parse_for_statement(self) -> ForStatementNode:
         """Parse for statement - עבור"""
         token = self.expect(TokenType.FOR)
-        var_token = self.expect(TokenType.IDENTIFIER, "ציפיתי לשם משתנה")
+        var_token = self.expect_identifier_or_builtin("ציפיתי לשם משתנה")
         variable = var_token.value
         
         self.expect(TokenType.IN, "ציפיתי ל־'בתוך'")
@@ -845,8 +906,26 @@ class Parser:
         return ExpressionStatementNode(expr, expr.line, expr.column)
     
     def parse_expression(self) -> ASTNode:
-        """Parse an expression"""
-        return self.parse_or_expression()
+        """Parse an expression (including ternary conditional)"""
+        return self.parse_ternary_expression()
+    
+    def parse_ternary_expression(self) -> ASTNode:
+        """Parse ternary conditional expression - value אם condition אחרת alternative"""
+        # First parse the true value (or just the expression if not ternary)
+        true_value = self.parse_or_expression()
+        
+        # Check for ternary: value אם condition אחרת alternative
+        if self.current_token().type == TokenType.IF:
+            self.advance()  # consume אם
+            condition = self.parse_or_expression()
+            
+            self.expect(TokenType.ELSE, "ציפיתי ל־'אחרת' בביטוי תנאי")
+            false_value = self.parse_ternary_expression()  # Allow chaining
+            
+            return TernaryNode(true_value, condition, false_value,
+                              true_value.line, true_value.column)
+        
+        return true_value
     
     def parse_or_expression(self) -> ASTNode:
         """Parse 'or' expression - או"""
@@ -874,6 +953,12 @@ class Parser:
         """Parse 'not' expression - לא"""
         if self.current_token().type == TokenType.NOT:
             token = self.advance()
+            # Check if this is 'לא בתוך' (not in) - two word form
+            if self.current_token().type == TokenType.IN:
+                # This is "not in" as two words, let parse_comparison handle it
+                # by putting back the NOT and treating לא בתוך as a comparison op
+                self.pos -= 1
+                return self.parse_comparison()
             operand = self.parse_not_expression()
             return UnaryOpNode('not', operand, token.line, token.column)
         
@@ -891,16 +976,27 @@ class Parser:
             TokenType.LESS_EQ: '<=',
             TokenType.GREATER_EQ: '>=',
             TokenType.IN: 'in',
+            TokenType.NOT_IN: 'not in',
         }
         
         ops = []
         comparators = []
         
-        while self.current_token().type in comparison_ops:
-            op = comparison_ops[self.current_token().type]
-            self.advance()
-            ops.append(op)
-            comparators.append(self.parse_additive())
+        while True:
+            token_type = self.current_token().type
+            if token_type in comparison_ops:
+                op = comparison_ops[token_type]
+                self.advance()
+                ops.append(op)
+                comparators.append(self.parse_additive())
+            # Handle two-word "לא בתוך" (NOT IN)
+            elif token_type == TokenType.NOT and self.peek(1) and self.peek(1).type == TokenType.IN:
+                self.advance()  # consume NOT
+                self.advance()  # consume IN
+                ops.append('not in')
+                comparators.append(self.parse_additive())
+            else:
+                break
         
         if ops:
             return ComparisonNode(left, ops, comparators, left.line, left.column)
@@ -1028,9 +1124,9 @@ class Parser:
                     expr = IndexNode(expr, start, expr.line, expr.column)
                 
             elif token.type == TokenType.DOT:
-                # Attribute access
+                # Attribute access - allow identifiers and builtins/keywords as attribute names
                 self.advance()
-                attr_token = self.expect(TokenType.IDENTIFIER)
+                attr_token = self.expect_attribute_name("ציפיתי לשם תכונה")
                 expr = AttributeNode(expr, attr_token.value, expr.line, expr.column)
             else:
                 break
@@ -1043,7 +1139,18 @@ class Parser:
         
         if token.type == TokenType.NUMBER:
             self.advance()
-            value = float(token.value) if '.' in token.value else int(token.value)
+            # Handle hex (0x), octal (0o), binary (0b) and decimal numbers
+            val_str = token.value
+            if val_str.startswith(('0x', '0X')):
+                value = int(val_str, 16)
+            elif val_str.startswith(('0o', '0O')):
+                value = int(val_str, 8)
+            elif val_str.startswith(('0b', '0B')):
+                value = int(val_str, 2)
+            elif '.' in val_str:
+                value = float(val_str)
+            else:
+                value = int(val_str)
             return NumberNode(value, token.line, token.column)
         
         elif token.type == TokenType.STRING:
@@ -1113,8 +1220,8 @@ class Parser:
         if self.current_token().type == TokenType.FOR:
             self.advance()  # consume עבור
             
-            # Get loop variable
-            if self.current_token().type != TokenType.IDENTIFIER:
+            # Get loop variable (allow builtins as variable names)
+            if self.current_token().type != TokenType.IDENTIFIER and self.current_token().type not in BUILTIN_FUNCTION_TOKENS:
                 raise ParserError("ציפיתי למשתנה לולאה", 
                                 self.current_token().line, self.current_token().column)
             variable = self.current_token().value
@@ -1123,14 +1230,15 @@ class Parser:
             # Expect בתוך
             self.expect(TokenType.IN, "ציפיתי ל־'בתוך'")
             
-            # Parse iterable
-            iterable = self.parse_expression()
+            # Parse iterable (use parse_or_expression to avoid consuming IF as ternary)
+            iterable = self.parse_or_expression()
             
             # Check for optional condition (אם)
             condition = None
             if self.current_token().type == TokenType.IF:
                 self.advance()
-                condition = self.parse_expression()
+                # Condition also uses parse_or_expression to avoid ternary issues
+                condition = self.parse_or_expression()
             
             self.expect(TokenType.RBRACKET)
             return ListCompNode(first_expr, variable, iterable, condition, token.line, token.column)
@@ -1138,11 +1246,18 @@ class Parser:
         # Regular list literal
         elements = [first_expr]
         
+        # Skip newlines after first element
+        self.skip_newlines()
+        
         while self.current_token().type == TokenType.COMMA:
             self.advance()
+            # Skip newlines after comma
+            self.skip_newlines()
             if self.current_token().type == TokenType.RBRACKET:
                 break  # Allow trailing comma
             elements.append(self.parse_expression())
+            # Skip newlines after element
+            self.skip_newlines()
         
         self.expect(TokenType.RBRACKET)
         return ListNode(elements, token.line, token.column)
@@ -1152,14 +1267,22 @@ class Parser:
         token = self.expect(TokenType.LBRACE)
         pairs = []
         
+        # Skip newlines at the start
+        self.skip_newlines()
+        
         while self.current_token().type != TokenType.RBRACE:
             key = self.parse_expression()
             self.expect(TokenType.COLON)
             value = self.parse_expression()
             pairs.append((key, value))
             
+            # Skip newlines after value
+            self.skip_newlines()
+            
             if self.current_token().type == TokenType.COMMA:
                 self.advance()
+                # Skip newlines after comma
+                self.skip_newlines()
         
         self.expect(TokenType.RBRACE)
         return DictNode(pairs, token.line, token.column)
@@ -1169,9 +1292,9 @@ class Parser:
         token = self.expect(TokenType.LAMBDA)
         params = []
         
-        # Parse parameters until we hit the colon
+        # Parse parameters until we hit the colon (allow builtins as param names)
         while self.current_token().type != TokenType.COLON:
-            if self.current_token().type == TokenType.IDENTIFIER:
+            if self.current_token().type == TokenType.IDENTIFIER or self.current_token().type in BUILTIN_FUNCTION_TOKENS:
                 params.append(self.current_token().value)
                 self.advance()
                 

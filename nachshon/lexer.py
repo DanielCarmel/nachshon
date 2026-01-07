@@ -93,6 +93,7 @@ class TokenType(Enum):
     MINUS_ASSIGN = auto()# -=
     MUL_ASSIGN = auto()  # *=
     DIV_ASSIGN = auto()  # /=
+    NOT_IN = auto()      # לא_בתוך (not in)
     
     # Delimiters - תוחמים
     LPAREN = auto()      # (
@@ -120,6 +121,7 @@ HEBREW_KEYWORDS = {
     'אחרת': TokenType.ELSE,
     'אחרת_אם': TokenType.ELIF,
     'בעוד': TokenType.WHILE,
+    'כל_עוד': TokenType.WHILE,  # Alternative for while
     'עבור': TokenType.FOR,
     'בתוך': TokenType.IN,
     
@@ -145,6 +147,7 @@ HEBREW_KEYWORDS = {
     'וגם': TokenType.AND,
     'או': TokenType.OR,
     'לא': TokenType.NOT,
+    'לא_בתוך': TokenType.NOT_IN,  # not in
     
     # Other keywords - מילות מפתח נוספות
     'עבור_הלאה': TokenType.PASS,
@@ -153,6 +156,7 @@ HEBREW_KEYWORDS = {
     'גלובלי': TokenType.GLOBAL,
     'הנב': TokenType.YIELD,
     'פונקציה_אנונימית': TokenType.LAMBDA,
+    'למבדה': TokenType.LAMBDA,  # Short form for lambda
     
     # Built-in functions - פונקציות מובנות
     'הדפס': TokenType.PRINT,
@@ -252,6 +256,7 @@ class Lexer:
         self.column = 1
         self.tokens: List[Token] = []
         self.indent_stack = [0]  # Stack for tracking indentation
+        self.bracket_depth = 0   # Track bracket nesting to suppress indentation
         
     def current_char(self) -> Optional[str]:
         """Get current character or None if at end"""
@@ -322,11 +327,37 @@ class Lexer:
         raise LexerError("מחרוזת לא נסגרה", start_line, start_col)
     
     def read_number(self) -> Token:
-        """Read a numeric literal"""
+        """Read a numeric literal (decimal, hex, octal, or binary)"""
         start_line = self.line
         start_col = self.column
         value = ""
         has_dot = False
+        
+        # Check for hex (0x), octal (0o), or binary (0b) prefix
+        if self.current_char() == '0' and self.peek() in ('x', 'X', 'o', 'O', 'b', 'B'):
+            value = self.current_char()
+            self.advance()
+            prefix_char = self.current_char().lower()
+            value += self.current_char()
+            self.advance()
+            
+            if prefix_char == 'x':
+                # Hexadecimal
+                while self.current_char() is not None and self.current_char() in '0123456789abcdefABCDEF':
+                    value += self.current_char()
+                    self.advance()
+            elif prefix_char == 'o':
+                # Octal
+                while self.current_char() is not None and self.current_char() in '01234567':
+                    value += self.current_char()
+                    self.advance()
+            elif prefix_char == 'b':
+                # Binary
+                while self.current_char() is not None and self.current_char() in '01':
+                    value += self.current_char()
+                    self.advance()
+            
+            return Token(TokenType.NUMBER, value, start_line, start_col)
         
         while self.current_char() is not None:
             char = self.current_char()
@@ -437,17 +468,22 @@ class Lexer:
         while self.current_char() is not None:
             char = self.current_char()
             
-            # Handle newlines
+            # Handle newlines - skip NEWLINE token inside brackets
             if char == '\n':
-                self.tokens.append(Token(TokenType.NEWLINE, '\\n', self.line, self.column))
+                if self.bracket_depth == 0:
+                    self.tokens.append(Token(TokenType.NEWLINE, '\\n', self.line, self.column))
                 self.advance()
                 at_line_start = True
                 continue
             
-            # Handle indentation at line start
+            # Handle indentation at line start - skip inside brackets
             if at_line_start:
-                indent_tokens = self.handle_indentation()
-                self.tokens.extend(indent_tokens)
+                if self.bracket_depth == 0:
+                    indent_tokens = self.handle_indentation()
+                    self.tokens.extend(indent_tokens)
+                else:
+                    # Inside brackets, just skip the whitespace
+                    self.skip_whitespace()
                 at_line_start = False
                 continue
             
@@ -476,8 +512,13 @@ class Lexer:
                 self.tokens.append(self.read_identifier_or_keyword())
                 continue
             
-            # Delimiters
+            # Delimiters - track bracket depth
             if char in DELIMITERS:
+                # Track opening brackets
+                if char in '([{':
+                    self.bracket_depth += 1
+                elif char in ')]}':
+                    self.bracket_depth = max(0, self.bracket_depth - 1)
                 self.tokens.append(Token(DELIMITERS[char], char, self.line, self.column))
                 self.advance()
                 continue

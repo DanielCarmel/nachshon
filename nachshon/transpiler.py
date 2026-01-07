@@ -11,7 +11,8 @@ from parser import (
     ExpressionStatementNode, BinaryOpNode, UnaryOpNode, ComparisonNode,
     LogicalOpNode, CallNode, IdentifierNode, NumberNode, StringNode,
     BooleanNode, NoneNode, ListNode, DictNode, IndexNode, AttributeNode,
-    ImportNode, TryExceptNode, WithStatementNode, LambdaNode, ListCompNode, SliceNode
+    ImportNode, TryExceptNode, WithStatementNode, LambdaNode, ListCompNode, SliceNode,
+    TernaryNode
 )
 
 
@@ -88,6 +89,28 @@ class Transpiler:
         self.ast = ast
         self.indent_level = 0
         self.indent_str = "    "  # 4 spaces
+        self.local_scopes = []  # Stack of sets tracking local variables in each scope
+    
+    def push_scope(self, variables: list = None):
+        """Push a new scope with optional initial variables (e.g., function parameters)"""
+        self.local_scopes.append(set(variables or []))
+    
+    def pop_scope(self):
+        """Pop the current scope"""
+        if self.local_scopes:
+            self.local_scopes.pop()
+    
+    def add_local(self, name: str):
+        """Add a variable to the current scope"""
+        if self.local_scopes:
+            self.local_scopes[-1].add(name)
+    
+    def is_local(self, name: str) -> bool:
+        """Check if a name is defined as a local variable in any active scope"""
+        for scope in self.local_scopes:
+            if name in scope:
+                return True
+        return False
     
     def indent(self) -> str:
         """Return current indentation string"""
@@ -103,10 +126,16 @@ class Transpiler:
         lines.append("# This code was auto-generated from Nachshon")
         lines.append("")
         
+        # Push module-level scope
+        self.push_scope()
+        
         for node in self.ast.body:
             code = self.transpile_node(node)
             if code:
                 lines.append(code)
+        
+        # Pop module-level scope
+        self.pop_scope()
         
         return '\n'.join(lines)
     
@@ -155,6 +184,9 @@ class Transpiler:
             decorator_str = self.transpile_expression(decorator)
             lines.append(f"{self.indent()}@{decorator_str}")
         
+        # Push scope with function parameters
+        self.push_scope(node.params)
+        
         # Build parameter list with defaults
         params = []
         num_defaults = len(node.defaults)
@@ -185,6 +217,9 @@ class Transpiler:
                 if code:
                     lines.append(code)
         self.indent_level -= 1
+        
+        # Pop scope when done with function
+        self.pop_scope()
         
         return '\n'.join(lines)
     
@@ -275,6 +310,9 @@ class Transpiler:
     def transpile_for_statement(self, node: ForStatementNode) -> str:
         """Transpile for statement"""
         lines = []
+        
+        # Add loop variable to current scope
+        self.add_local(node.variable)
         
         iterable = self.transpile_expression(node.iterable)
         lines.append(f"{self.indent()}for {node.variable} in {iterable}:")
@@ -413,6 +451,12 @@ class Transpiler:
             right = self.transpile_expression(node.right)
             return f"({left} {node.op} {right})"
         
+        elif isinstance(node, TernaryNode):
+            true_val = self.transpile_expression(node.true_value)
+            condition = self.transpile_expression(node.condition)
+            false_val = self.transpile_expression(node.false_value)
+            return f"({true_val} if {condition} else {false_val})"
+        
         elif isinstance(node, CallNode):
             return self.transpile_call(node)
         
@@ -422,7 +466,8 @@ class Transpiler:
             # Translate עצמי to self
             if name == 'עצמי':
                 return 'self'
-            if name in BUILTIN_MAPPING:
+            # Only map to builtin if NOT a local variable
+            if name in BUILTIN_MAPPING and not self.is_local(name):
                 return BUILTIN_MAPPING[name]
             return name
         
