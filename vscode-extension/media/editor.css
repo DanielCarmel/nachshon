@@ -1,0 +1,268 @@
+/* Nachshon RTL Editor Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--vscode-editor-background, #1e1e1e);
+    color: var(--vscode-editor-foreground, #d4d4d4);
+    font-family: var(--editor-font-family, 'Courier New', monospace);
+}
+
+#editor-container {
+    height: 100%;
+    width: 100%;
+    direction: rtl;
+}
+
+/* CodeMirror Theme - VS Code Dark Style */
+.cm-editor {
+    height: 100%;
+    font-size: var(--editor-font-size, 14px);
+    font-family: var(--editor-font-family, 'Courier New', monospace);
+    font-weight: 600;
+    background-color: var(--vscode-editor-background, #1e1e1e);
+    direction: rtl;
+}
+
+.cm-editor.cm-focused {
+    outline: none;
+}
+
+.cm-scroller {
+    direction: rtl;
+    text-align: right;
+    font-family: inherit;
+    line-height: 1.5;
+    overflow: auto;
+}
+
+.cm-content {
+    direction: rtl;
+    text-align: right;
+    caret-color: var(--vscode-editorCursor-foreground, #aeafad);
+    font-family: inherit;
+}
+
+.cm-line {
+    direction: rtl;
+    text-align: right;
+    padding-right: 12px;
+    padding-left: 4px;
+}
+
+/* Gutters (line numbers) */
+.cm-gutters {
+    direction: ltr;
+    background-color: var(--vscode-editorGutter-background, #1e1e1e);
+    border-left: 1px solid var(--vscode-editorGroup-border, #444);
+    border-right: none;
+    color: var(--vscode-editorLineNumber-foreground, #858585);
+}
+
+.cm-gutter {
+    direction: ltr;
+}
+
+.cm-lineNumbers {
+    display: var(--show-line-numbers, block);
+}
+
+.cm-lineNumbers .cm-gutterElement {
+    padding: 0 8px 0 16px;
+    min-width: 32px;
+    text-align: left;
+}
+
+/* Active line */
+.cm-activeLine {
+    background-color: var(--vscode-editor-lineHighlightBackground, rgba(255, 255, 255, 0.1));
+}
+
+.cm-activeLineGutter {
+    background-color: var(--vscode-editor-lineHighlightBackground, rgba(255, 255, 255, 0.1));
+    color: var(--vscode-editorLineNumber-activeForeground, #c6c6c6);
+}
+
+/* Selection */
+.cm-selectionBackground {
+    background-color: var(--vscode-editor-selectionBackground, #264f78) !important;
+}
+
+.cm-editor.cm-focused .cm-selectionBackground {
+    background-color: var(--vscode-editor-selectionBackground, #264f78) !important;
+}
+
+/* Cursor */
+.cm-cursor {
+    border-left-color: var(--vscode-editorCursor-foreground, #aeafad);
+    border-left-width: 2px;
+}
+
+/* Matching brackets */
+.cm-matchingBracket {
+    background-color: var(--vscode-editorBracketMatch-background, rgba(0, 100, 0, 0.3));
+    outline: 1px solid var(--vscode-editorBracketMatch-border, #888);
+}
+
+/* Search highlighting */
+.cm-searchMatch {
+    background-color: var(--vscode-editor-findMatchHighlightBackground, rgba(234, 92, 0, 0.33));
+}
+
+.cm-searchMatch.cm-searchMatch-selected {
+    background-color: var(--vscode-editor-findMatchBackground, rgba(255, 150, 50, 0.5));
+}
+
+/* Syntax Highlighting - Nachshon/Hebrew */
+
+/* Keywords - Blue */
+.tok-keyword {
+    color: var(--vscode-symbolIcon-keywordForeground, #569cd6);
+    font-weight: bold;
+}
+
+/* Control flow keywords */
+.tok-controlKeyword {
+    color: var(--vscode-symbolIcon-keywordForeground, #c586c0);
+}
+
+/* Strings - Orange/Brown */
+.tok-string {
+    color: var(--vscode-symbolIcon-stringForeground, #ce9178);
+}
+
+/* Numbers - Light Green */
+.tok-number {
+    color: var(--vscode-symbolIcon-numberForeground, #b5cea8);
+}
+
+/* Comments - Green */
+.tok-comment {
+    color: var(--vscode-symbolIcon-commentForeground, #6a9955);
+    font-style: italic;
+}
+
+/* Functions - Yellow */
+.tok-function, .tok-definition {
+    color: var(--vscode-symbolIcon-functionForeground, #dcdcaa);
+}
+
+/* Variables - Light Blue */
+.tok-variableName {
+    color: var(--vscode-symbolIcon-variableForeground, #9cdcfe);
+}
+
+/* Types/Classes - Green */
+.tok-typeName, .tok-className {
+    color: var(--vscode-symbolIcon-classForeground, #4ec9b0);
+}
+
+/* Properties - Light Blue */
+.tok-propertyName {
+    color: var(--vscode-symbolIcon-propertyForeground, #9cdcfe);
+}
+
+/* Operators */
+.tok-operator {
+    color: var(--vscode-symbolIcon-operatorForeground, #d4d4d4);
+}
+
+/* Punctuation */
+.tok-punctuation {
+    color: var(--vscode-symbolIcon-operatorForeground, #d4d4d4);
+}
+
+/* Boolean and null */
+.tok-bool, .tok-null {
+    color: var(--vscode-symbolIcon-keywordForeground, #569cd6);
+}
+
+/* Error squiggles */
+.cm-lintRange-error {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3'%3E%3Cpath d='M0 2.5 L2 0.5 L4 2.5 L6 0.5' fill='none' stroke='%23f44747' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-position: bottom;
+}
+
+.cm-lintRange-warning {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3'%3E%3Cpath d='M0 2.5 L2 0.5 L4 2.5 L6 0.5' fill='none' stroke='%23cca700' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-position: bottom;
+}
+
+/* Autocomplete panel */
+.cm-tooltip {
+    background-color: var(--vscode-editorSuggestWidget-background, #252526);
+    border: 1px solid var(--vscode-editorSuggestWidget-border, #454545);
+    color: var(--vscode-editorSuggestWidget-foreground, #d4d4d4);
+    direction: rtl;
+}
+
+.cm-tooltip-autocomplete {
+    max-height: 300px;
+}
+
+.cm-tooltip-autocomplete > ul {
+    direction: rtl;
+    text-align: right;
+}
+
+.cm-tooltip-autocomplete > ul > li {
+    padding: 4px 8px;
+    direction: rtl;
+}
+
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
+    background-color: var(--vscode-editorSuggestWidget-selectedBackground, #094771);
+    color: var(--vscode-editorSuggestWidget-selectedForeground, #ffffff);
+}
+
+/* Scrollbar styling */
+.cm-scroller::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+.cm-scroller::-webkit-scrollbar-track {
+    background-color: var(--vscode-scrollbarSlider-background, transparent);
+}
+
+.cm-scroller::-webkit-scrollbar-thumb {
+    background-color: var(--vscode-scrollbarSlider-background, rgba(121, 121, 121, 0.4));
+    border-radius: 7px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+
+.cm-scroller::-webkit-scrollbar-thumb:hover {
+    background-color: var(--vscode-scrollbarSlider-hoverBackground, rgba(100, 100, 100, 0.7));
+}
+
+/* Fold gutters */
+.cm-foldGutter {
+    width: 16px;
+}
+
+.cm-foldGutter .cm-gutterElement {
+    text-align: center;
+    cursor: pointer;
+    color: var(--vscode-editorGutter-foldingControlForeground, #c5c5c5);
+}
+
+/* Loading state */
+#editor-container.loading::after {
+    content: 'טוען עורך...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: var(--vscode-foreground, #cccccc);
+}

@@ -1,0 +1,211 @@
+// Nachshon Language Grammar for Lezer
+// This grammar defines the syntax of the Nachshon Hebrew programming language
+
+@top Program { statement* }
+
+@skip { space | Comment }
+
+statement {
+  SimpleStatement |
+  CompoundStatement
+}
+
+SimpleStatement {
+  ExpressionStatement |
+  AssignmentStatement |
+  ReturnStatement |
+  PassStatement |
+  BreakStatement |
+  ContinueStatement |
+  ImportStatement |
+  GlobalStatement |
+  RaiseStatement |
+  AssertStatement
+}
+
+CompoundStatement {
+  IfStatement |
+  WhileStatement |
+  ForStatement |
+  FunctionDef |
+  ClassDef |
+  TryStatement |
+  WithStatement
+}
+
+ExpressionStatement { expression newline }
+
+AssignmentStatement { 
+  VariableName AssignOp expression newline
+}
+
+ReturnStatement { kw<"החזר"> expression? newline }
+PassStatement { kw<"העבר"> newline }
+BreakStatement { kw<"עצור"> newline }
+ContinueStatement { kw<"המשך"> newline }
+
+ImportStatement {
+  kw<"ייבא"> ModuleName newline |
+  kw<"מ"> ModuleName kw<"ייבא"> ImportList newline
+}
+
+GlobalStatement { kw<"גלובלי"> VariableName newline }
+RaiseStatement { kw<"זרוק"> expression? newline }
+AssertStatement { kw<"טען"> expression newline }
+
+IfStatement {
+  kw<"אם"> expression ":" Block
+  (kw<"אחרת_אם"> expression ":" Block)*
+  (kw<"אחרת"> ":" Block)?
+}
+
+WhileStatement {
+  kw<"כל_עוד"> expression ":" Block
+}
+
+ForStatement {
+  kw<"לכל"> VariableName kw<"ב"> expression ":" Block
+}
+
+FunctionDef {
+  kw<"פונקציה"> FunctionName "(" ParameterList? ")" ":" Block
+}
+
+ClassDef {
+  kw<"מחלקה"> ClassName ("(" ArgList? ")")? ":" Block
+}
+
+TryStatement {
+  kw<"נסה"> ":" Block
+  (kw<"תפוס"> (VariableName (kw<"כ"> VariableName)?)? ":" Block)*
+  (kw<"לבסוף"> ":" Block)?
+}
+
+WithStatement {
+  kw<"עם"> expression (kw<"כ"> VariableName)? ":" Block
+}
+
+Block {
+  indent statement+ dedent
+}
+
+expression {
+  LambdaExpression |
+  ConditionalExpression |
+  LogicalExpression
+}
+
+LambdaExpression {
+  kw<"למבדה"> ParameterList? ":" expression
+}
+
+ConditionalExpression {
+  LogicalExpression (kw<"אם"> LogicalExpression kw<"אחרת"> expression)?
+}
+
+LogicalExpression {
+  ComparisonExpression |
+  LogicalExpression kw<"וגם"> ComparisonExpression |
+  LogicalExpression kw<"או"> ComparisonExpression |
+  kw<"לא"> LogicalExpression
+}
+
+ComparisonExpression {
+  ArithmeticExpression |
+  ComparisonExpression CompareOp ArithmeticExpression |
+  ComparisonExpression kw<"ב"> ArithmeticExpression
+}
+
+ArithmeticExpression {
+  UnaryExpression |
+  ArithmeticExpression ArithOp UnaryExpression
+}
+
+UnaryExpression {
+  "-" UnaryExpression |
+  "+" UnaryExpression |
+  PowerExpression
+}
+
+PowerExpression {
+  CallExpression ("**" UnaryExpression)?
+}
+
+CallExpression {
+  PrimaryExpression |
+  CallExpression "(" ArgList? ")" |
+  CallExpression "[" expression "]" |
+  CallExpression "." PropertyName
+}
+
+PrimaryExpression {
+  VariableName |
+  Number |
+  String |
+  kw<"אמת"> |
+  kw<"שקר"> |
+  kw<"כלום"> |
+  kw<"עצמי"> |
+  ListLiteral |
+  DictLiteral |
+  "(" expression ")"
+}
+
+ListLiteral { "[" (expression ("," expression)*)? "]" }
+DictLiteral { "{" (DictEntry ("," DictEntry)*)? "}" }
+DictEntry { expression ":" expression }
+
+ParameterList { Parameter ("," Parameter)* }
+Parameter { VariableName ("=" expression)? }
+ArgList { Arg ("," Arg)* }
+Arg { (VariableName "=")? expression }
+ImportList { VariableName ("," VariableName)* }
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+@tokens {
+  // Whitespace
+  space { $[ \t]+ }
+  newline { $[\n\r] }
+  
+  // Comments
+  Comment { "#" ![\n\r]* }
+  
+  // Indentation (handled specially)
+  indent { @eof }
+  dedent { @eof }
+  
+  // Identifiers - Hebrew and ASCII
+  Identifier { $[\u0590-\u05FF_a-zA-Z] $[\u0590-\u05FF_a-zA-Z0-9]* }
+  
+  // Numbers
+  Number { 
+    $[0-9]+ ("." $[0-9]+)? |
+    "." $[0-9]+
+  }
+  
+  // Strings
+  String {
+    '"' (![\\\n"] | "\\" _)* '"' |
+    "'" (![\\\n'] | "\\" _)* "'"
+  }
+  
+  // Operators
+  ArithOp { "+" | "-" | "*" | "/" | "//" | "%" | "**" }
+  CompareOp { "==" | "!=" | "<" | ">" | "<=" | ">=" }
+  AssignOp { "=" | "+=" | "-=" | "*=" | "/=" }
+  
+  // Punctuation
+  "(" ")" "[" "]" "{" "}" ":" "," "." "->"
+  
+  @precedence { Number, ArithOp }
+}
+
+// Token names for syntax highlighting
+@external propSource highlighting from "./highlight"
+
+VariableName { Identifier }
+FunctionName { Identifier }
+ClassName { Identifier }
+PropertyName { Identifier }
+ModuleName { Identifier }

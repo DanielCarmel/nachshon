@@ -1,0 +1,149 @@
+{
+  "name": "nachshon-lang",
+  "displayName": "Nachshon - Hebrew Programming Language",
+  "description": "Full RTL support for Nachshon (נחשון) Hebrew programming language with CodeMirror-based custom editor",
+  "version": "2.0.0",
+  "publisher": "nachshon",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "hebrew",
+    "rtl",
+    "nachshon",
+    "נחשון",
+    "עברית"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [
+      {
+        "id": "nachshon",
+        "aliases": [
+          "Nachshon",
+          "נחשון"
+        ],
+        "extensions": [
+          ".נח",
+          ".nach"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./media/nachshon-icon.svg",
+          "dark": "./media/nachshon-icon.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nachshon",
+        "scopeName": "source.nachshon",
+        "path": "./syntaxes/nachshon.tmLanguage.json"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "nachshon.rtlEditor",
+        "displayName": "Nachshon RTL Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.נח"
+          },
+          {
+            "filenamePattern": "*.nach"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "nachshon.openWithRtlEditor",
+        "title": "Open with Nachshon RTL Editor",
+        "category": "Nachshon"
+      },
+      {
+        "command": "nachshon.openWithDefaultEditor",
+        "title": "Open with Default Text Editor",
+        "category": "Nachshon"
+      },
+      {
+        "command": "nachshon.runFile",
+        "title": "Run Nachshon File",
+        "category": "Nachshon",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "nachshon.runFile",
+          "when": "activeCustomEditorId == nachshon.rtlEditor",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "nachshon.openWithRtlEditor",
+          "when": "resourceExtname == .נח || resourceExtname == .nach",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configurationDefaults": {
+      "[nachshon]": {
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "editor.unicodeHighlight.invisibleCharacters": false,
+        "editor.fontWeight": "600"
+      }
+    },
+    "configuration": {
+      "title": "Nachshon",
+      "properties": {
+        "nachshon.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to Python interpreter for running Nachshon files"
+        },
+        "nachshon.nachshonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to nachshon.py interpreter (leave empty to auto-detect)"
+        },
+        "nachshon.editor.fontSize": {
+          "type": "number",
+          "default": 14,
+          "description": "Font size in the RTL editor"
+        },
+        "nachshon.editor.fontFamily": {
+          "type": "string",
+          "default": "'Courier New', 'David CLM', 'Miriam Mono CLM', monospace",
+          "description": "Font family for the RTL editor"
+        },
+        "nachshon.editor.lineNumbers": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show line numbers in the RTL editor"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npx vsce package --allow-missing-repository",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.0.0"
+  }
+}
+

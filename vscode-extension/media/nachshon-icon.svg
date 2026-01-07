@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect x="2" y="2" width="28" height="28" rx="4" fill="#2D5AA8"/>
+  
+  <!-- Hebrew letter Nun (נ) stylized -->
+  <text x="16" y="23" 
+        font-family="Arial, sans-serif" 
+        font-size="18" 
+        font-weight="bold" 
+        fill="#FFFFFF" 
+        text-anchor="middle">נ</text>
+  
+  <!-- Small code bracket accent -->
+  <path d="M6 8 L9 8 L9 10 L8 10 L8 22 L9 22 L9 24 L6 24 L6 8" fill="#7CB9FF" opacity="0.8"/>
+  <path d="M26 8 L23 8 L23 10 L24 10 L24 22 L23 22 L23 24 L26 24 L26 8" fill="#7CB9FF" opacity="0.8"/>
+</svg>

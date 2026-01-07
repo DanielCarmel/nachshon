@@ -1,0 +1,68 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "scopeName": "source.nachshon",
+  "name": "Nachshon",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#string-double" },
+    { "include": "#string-single" },
+    { "include": "#number" },
+    { "include": "#keyword" },
+    { "include": "#builtin" },
+    { "include": "#constant" },
+    { "include": "#self" },
+    { "include": "#identifier" }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.number-sign.nachshon",
+      "match": "#.*$"
+    },
+    "string-double": {
+      "name": "string.quoted.double.nachshon",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.nachshon",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "string-single": {
+      "name": "string.quoted.single.nachshon",
+      "begin": "'",
+      "end": "'",
+      "patterns": [
+        {
+          "name": "constant.character.escape.nachshon",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "number": {
+      "name": "constant.numeric.nachshon",
+      "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+    },
+    "keyword": {
+      "name": "keyword.control.nachshon",
+      "match": "(?<![\\p{L}\\p{N}_])(אם|אחרת_אם|אחרת|עבור|בעוד|בתוך|הגדר|מחלקה|החזר|הפסק|המשך|נסה|תפוס|לבסוף|זרוק|ייבא|מתוך|בתור|עם|וגם|או|לא|עבור_הלאה|למבדה|פונקציה_אנונימית)(?![\\p{L}\\p{N}_])"
+    },
+    "builtin": {
+      "name": "support.function.nachshon",
+      "match": "(?<![\\p{L}\\p{N}_])(הדפס|קלט|אורך|סוג|טווח|מספר_שלם|מספר_עשרוני|מחרוזת|רשימה|מילון|קבוצה|סכום|מינימום|מקסימום|ממוין|הפוך|מספר_אינדקס|צמד|מפה|סנן|פתח|שורש|ערך_מוחלט|בוליאני)(?![\\p{L}\\p{N}_])"
+    },
+    "constant": {
+      "name": "constant.language.nachshon",
+      "match": "(?<![\\p{L}\\p{N}_])(אמת|שקר|ריק)(?![\\p{L}\\p{N}_])"
+    },
+    "self": {
+      "name": "variable.language.self.nachshon",
+      "match": "(?<![\\p{L}\\p{N}_])עצמי(?![\\p{L}\\p{N}_])"
+    },
+    "identifier": {
+      "name": "variable.other.nachshon",
+      "match": "[\\p{L}_][\\p{L}\\p{N}_]*"
+    }
+  }
+}

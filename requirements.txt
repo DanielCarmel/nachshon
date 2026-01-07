@@ -1,0 +1,14 @@
+# Nachshon - Hebrew Programming Language
+# Core dependencies (none required for basic functionality)
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Optional: for better REPL experience
+readline; sys_platform != "win32"
+pyreadline3; sys_platform == "win32"
+
+# Optional: for code formatting
+black>=23.0.0
+ruff>=0.1.0
