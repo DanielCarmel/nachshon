@@ -75,6 +75,8 @@ jobs:
       run: |
         cd tests
         python -m pytest -v --tb=short
+      env:
+        PYTHONIOENCODING: utf-8
     
     - name: Run example files
       shell: bash
@@ -83,11 +85,15 @@ jobs:
           echo "🚀 Testing: $file"
           python nachshon.py run "$file" || exit 1
         done
+      env:
+        PYTHONIOENCODING: utf-8
     
     - name: Test REPL
       shell: bash
       run: |
         echo -e "x = 5\nהדפס(x)\nיציאה" | python nachshon.py repl
+      env:
+        PYTHONIOENCODING: utf-8
     
     - name: Test build command
       shell: bash
@@ -95,6 +101,8 @@ jobs:
         python nachshon.py build "examples/01_שלום_עולם.נח" -o test_output.py
         cat test_output.py
         rm test_output.py
+      env:
+        PYTHONIOENCODING: utf-8
 
   lint:
     needs: changes
