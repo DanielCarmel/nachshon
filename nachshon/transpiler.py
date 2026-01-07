@@ -3,17 +3,31 @@
 # ממיר עץ תחביר נחשון לקוד פייתון
 
 from typing import List, Dict, Optional
-from .parser import (
-    ASTNode, NodeType, ProgramNode, FunctionDefNode, ClassDefNode,
-    IfStatementNode, WhileStatementNode, ForStatementNode,
-    ReturnStatementNode, BreakStatementNode, ContinueStatementNode,
-    PassStatementNode, AssignmentNode, AugmentedAssignmentNode,
-    ExpressionStatementNode, BinaryOpNode, UnaryOpNode, ComparisonNode,
-    LogicalOpNode, CallNode, IdentifierNode, NumberNode, StringNode,
-    BooleanNode, NoneNode, ListNode, DictNode, IndexNode, AttributeNode,
-    ImportNode, TryExceptNode, WithStatementNode, LambdaNode, ListCompNode, SliceNode,
-    TernaryNode
-)
+
+try:
+    from .parser import (
+        ASTNode, NodeType, ProgramNode, FunctionDefNode, ClassDefNode,
+        IfStatementNode, WhileStatementNode, ForStatementNode,
+        ReturnStatementNode, BreakStatementNode, ContinueStatementNode,
+        PassStatementNode, AssignmentNode, AugmentedAssignmentNode,
+        ExpressionStatementNode, BinaryOpNode, UnaryOpNode, ComparisonNode,
+        LogicalOpNode, CallNode, IdentifierNode, NumberNode, StringNode,
+        BooleanNode, NoneNode, ListNode, DictNode, IndexNode, AttributeNode,
+        ImportNode, TryExceptNode, WithStatementNode, LambdaNode, ListCompNode, SliceNode,
+        TernaryNode
+    )
+except ImportError:
+    from nachshon.parser import (
+        ASTNode, NodeType, ProgramNode, FunctionDefNode, ClassDefNode,
+        IfStatementNode, WhileStatementNode, ForStatementNode,
+        ReturnStatementNode, BreakStatementNode, ContinueStatementNode,
+        PassStatementNode, AssignmentNode, AugmentedAssignmentNode,
+        ExpressionStatementNode, BinaryOpNode, UnaryOpNode, ComparisonNode,
+        LogicalOpNode, CallNode, IdentifierNode, NumberNode, StringNode,
+        BooleanNode, NoneNode, ListNode, DictNode, IndexNode, AttributeNode,
+        ImportNode, TryExceptNode, WithStatementNode, LambdaNode, ListCompNode, SliceNode,
+        TernaryNode
+    )
 
 
 # Mapping Hebrew built-in functions to Python
@@ -548,8 +562,12 @@ class Transpiler:
 
 def transpile(code: str) -> str:
     """Convenience function to transpile Nachshon code to Python"""
-    from .lexer import Lexer
-    from .parser import Parser
+    try:
+        from .lexer import Lexer
+        from .parser import Parser
+    except ImportError:
+        from nachshon.lexer import Lexer
+        from nachshon.parser import Parser
     
     lexer = Lexer(code)
     tokens = lexer.tokenize()

@@ -9,10 +9,16 @@ import traceback
 import readline  # For history support
 from typing import Optional
 
-from .lexer import Lexer, LexerError
-from .parser import Parser, ParserError
-from .transpiler import Transpiler, TranspilerError
-from .loader import install_loader, import_nachshon_module, ייבא_נחשון
+try:
+    from .lexer import Lexer, LexerError
+    from .parser import Parser, ParserError
+    from .transpiler import Transpiler, TranspilerError
+    from .loader import install_loader, import_nachshon_module, ייבא_נחשון
+except ImportError:
+    from nachshon.lexer import Lexer, LexerError
+    from nachshon.parser import Parser, ParserError
+    from nachshon.transpiler import Transpiler, TranspilerError
+    from nachshon.loader import install_loader, import_nachshon_module, ייבא_נחשון
 
 
 VERSION = "1.0.0"
@@ -85,7 +91,10 @@ def run_command(filename: str, show_python: bool = False) -> None:
     # Execute the Python code
     try:
         # Import the loader to enable importing other .nach modules
-        from .loader import install_loader, ייבא_נחשון
+        try:
+            from .loader import install_loader, ייבא_נחשון
+        except ImportError:
+            from nachshon.loader import install_loader, ייבא_נחשון
         
         # Install the loader with the file's directory in search path
         file_dir = os.path.dirname(os.path.abspath(filename))
