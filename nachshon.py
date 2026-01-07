@@ -8,10 +8,10 @@ Run this script to start the CLI
 import sys
 import os
 
-# Add nachshon directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'nachshon'))
+# Add project root to path
+sys.path.insert(0, os.path.dirname(__file__))
 
-from cli import main
+from nachshon.cli import main
 
 if __name__ == "__main__":
     main()

@@ -3,11 +3,11 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'nachshon'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest
-from lexer import Lexer, LexerError
-from parser import (
+from nachshon.lexer import Lexer, LexerError
+from nachshon.parser import (
     Parser, ParserError, parse, NodeType,
     ProgramNode, FunctionDefNode, IfStatementNode, WhileStatementNode,
     ForStatementNode, ReturnStatementNode, AssignmentNode,
@@ -426,7 +426,7 @@ class TestParserClasses(unittest.TestCase):
 """
         ast = parse(code)
         class_def = ast.body[0]
-        from parser import ClassDefNode
+        from nachshon.parser import ClassDefNode
         self.assertIsInstance(class_def, ClassDefNode)
         self.assertEqual(class_def.name, "חיה")
     
@@ -438,7 +438,7 @@ class TestParserClasses(unittest.TestCase):
 """
         ast = parse(code)
         class_def = ast.body[0]
-        from parser import ClassDefNode
+        from nachshon.parser import ClassDefNode
         self.assertIsInstance(class_def, ClassDefNode)
         self.assertEqual(class_def.base, "חיה")
 
@@ -454,7 +454,7 @@ class TestParserTryExcept(unittest.TestCase):
     הדפס("שגיאה")
 """
         ast = parse(code)
-        from parser import TryExceptNode
+        from nachshon.parser import TryExceptNode
         try_stmt = ast.body[0]
         self.assertIsInstance(try_stmt, TryExceptNode)
         self.assertEqual(len(try_stmt.try_body), 1)

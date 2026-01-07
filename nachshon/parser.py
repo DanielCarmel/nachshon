@@ -5,7 +5,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Any, Union
 from enum import Enum, auto
-from lexer import Token, TokenType, Lexer, LexerError
+from .lexer import Token, TokenType, Lexer, LexerError
 
 # Built-in function tokens that can also be used as identifiers (variable/parameter names)
 # טוקנים של פונקציות מובנות שיכולים לשמש גם כשמות משתנים/פרמטרים
@@ -1313,7 +1313,7 @@ class Parser:
 
 def parse(code: str) -> ProgramNode:
     """Convenience function to parse code"""
-    from lexer import Lexer
+    from .lexer import Lexer
     lexer = Lexer(code)
     tokens = lexer.tokenize()
     parser = Parser(tokens)

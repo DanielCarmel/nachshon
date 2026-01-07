@@ -3,10 +3,10 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'nachshon'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest
-from lexer import Lexer, Token, TokenType, LexerError, tokenize
+from nachshon.lexer import Lexer, Token, TokenType, LexerError, tokenize
 
 
 class TestLexerBasics(unittest.TestCase):

@@ -7,9 +7,9 @@ import importlib.abc
 import importlib.machinery
 import importlib.util
 
-from lexer import Lexer, LexerError
-from parser import Parser, ParserError
-from transpiler import Transpiler, TranspilerError
+from .lexer import Lexer, LexerError
+from .parser import Parser, ParserError
+from .transpiler import Transpiler, TranspilerError
 
 
 class NachshonLoader(importlib.abc.SourceLoader):

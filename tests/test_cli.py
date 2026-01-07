@@ -3,13 +3,13 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'nachshon'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest
 import tempfile
 import io
 from contextlib import redirect_stdout, redirect_stderr
-from cli import compile_code, read_file, write_file, NachshonError
+from nachshon.cli import compile_code, read_file, write_file, NachshonError
 
 
 class TestCLICompile(unittest.TestCase):
@@ -131,7 +131,7 @@ class TestCLIErrorMessages(unittest.TestCase):
     
     def test_lexer_error_in_hebrew(self):
         """Test lexer errors are in Hebrew"""
-        from lexer import Lexer, LexerError
+        from nachshon.lexer import Lexer, LexerError
         
         try:
             lexer = Lexer('"מחרוזת לא סגורה')
@@ -143,7 +143,7 @@ class TestCLIErrorMessages(unittest.TestCase):
     
     def test_parser_error_in_hebrew(self):
         """Test parser errors are in Hebrew"""
-        from parser import ParserError, parse
+        from nachshon.parser import ParserError, parse
         
         try:
             parse("הגדר שלום\n    הדפס()")  # Missing ()

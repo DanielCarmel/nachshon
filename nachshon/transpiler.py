@@ -3,7 +3,7 @@
 # ממיר עץ תחביר נחשון לקוד פייתון
 
 from typing import List, Dict, Optional
-from parser import (
+from .parser import (
     ASTNode, NodeType, ProgramNode, FunctionDefNode, ClassDefNode,
     IfStatementNode, WhileStatementNode, ForStatementNode,
     ReturnStatementNode, BreakStatementNode, ContinueStatementNode,
@@ -548,8 +548,8 @@ class Transpiler:
 
 def transpile(code: str) -> str:
     """Convenience function to transpile Nachshon code to Python"""
-    from lexer import Lexer
-    from parser import Parser
+    from .lexer import Lexer
+    from .parser import Parser
     
     lexer = Lexer(code)
     tokens = lexer.tokenize()

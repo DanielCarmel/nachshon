@@ -3,11 +3,11 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'nachshon'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest
-from transpiler import transpile, Transpiler, TranspilerError, BUILTIN_MAPPING
-from parser import parse
+from nachshon.transpiler import transpile, Transpiler, TranspilerError, BUILTIN_MAPPING
+from nachshon.parser import parse
 
 
 class TestTranspilerBasics(unittest.TestCase):

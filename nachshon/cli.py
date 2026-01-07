@@ -9,13 +9,10 @@ import traceback
 import readline  # For history support
 from typing import Optional
 
-# Add src directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from lexer import Lexer, LexerError
-from parser import Parser, ParserError
-from transpiler import Transpiler, TranspilerError
-from loader import install_loader, import_nachshon_module, ייבא_נחשון
+from .lexer import Lexer, LexerError
+from .parser import Parser, ParserError
+from .transpiler import Transpiler, TranspilerError
+from .loader import install_loader, import_nachshon_module, ייבא_נחשון
 
 
 VERSION = "1.0.0"
@@ -88,7 +85,7 @@ def run_command(filename: str, show_python: bool = False) -> None:
     # Execute the Python code
     try:
         # Import the loader to enable importing other .nach modules
-        from loader import install_loader, ייבא_נחשון
+        from .loader import install_loader, ייבא_נחשון
         
         # Install the loader with the file's directory in search path
         file_dir = os.path.dirname(os.path.abspath(filename))
