@@ -1,5 +1,6 @@
 # test_cli.py
 # Unit tests for Nachshon CLI - בדיקות יחידה ל-CLI
+# Updated: 2026-01-07
 
 import sys
 import os
