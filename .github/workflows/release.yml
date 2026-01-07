@@ -46,7 +46,7 @@ jobs:
     
     - name: Create source archive
       run: |
-        tar -czvf nachshon-source.tar.gz src/ examples/ tests/ README.md LICENSE requirements.txt pyproject.toml
+        tar -czvf nachshon-source.tar.gz nachshon/ examples/ tests/ README.md LICENSE requirements.txt pyproject.toml
     
     - name: Create VS Code extension archive
       run: |

@@ -22,26 +22,80 @@
 
 ---
 
-## 🚀 התקנה והרצה
+## 🚀 התחלה מהירה
+
+### התקנה
+
+```bash
+# שכפול הפרויקט
+git clone https://github.com/nachshon-lang/nachshon.git
+cd nachshon
+
+# התקנה עם pip (מומלץ)
+pip install -e .
+```
+
+### הוספת nachshon ל-PATH
+
+לאחר ההתקנה, הוסף את תיקיית הסקריפטים של פייתון ל-PATH שלך:
+
+**macOS/Linux:**
+```bash
+# הוסף לקובץ ~/.zshrc או ~/.bashrc
+export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$PATH"
+
+# או אם משתמש ב-pip עם --user
+export PATH="$HOME/.local/bin:$PATH"
+
+# טען מחדש
+source ~/.zshrc  # או source ~/.bashrc
+```
+
+**Windows:**
+```powershell
+# הוסף את תיקיית Scripts של Python ל-PATH
+# בדרך כלל: C:\Users\USERNAME\AppData\Local\Programs\Python\Python311\Scripts
+```
+
+### הרצה ראשונה
+
+```bash
+# הדרך הכי פשוטה - פשוט תן את הקובץ!
+nachshon examples/01_שלום_עולם.נח
+
+# או עם python3 ישירות מתיקיית הפרויקט
+python3 nachshon.py examples/01_שלום_עולם.נח
+
+# או כמודול
+python3 -m src examples/01_שלום_עולם.נח
+```
+
+---
+
+## 📖 שימוש
 
 ### הרצת קובץ נחשון:
 ```bash
-python src/cli.py run examples/01_שלום_עולם.נח
+nachshon examples/01_שלום_עולם.נח
+# או
+nachshon run examples/01_שלום_עולם.נח
 ```
 
 ### בניית קובץ פייתון:
 ```bash
-python src/cli.py build examples/01_שלום_עולם.נח
+nachshon build examples/01_שלום_עולם.נח
 ```
 
 ### מצב אינטראקטיבי (REPL):
 ```bash
-python src/cli.py repl
+nachshon repl
+# או פשוט
+nachshon
 ```
 
 ### בדיקת תחביר:
 ```bash
-python src/cli.py check examples/01_שלום_עולם.נח
+nachshon check examples/01_שלום_עולם.נח
 ```
 
 ---
@@ -197,7 +251,7 @@ python src/cli.py check examples/01_שלום_עולם.נח
 
 ```
 nachshon/
-├── src/
+├── nachshon/
 │   ├── __init__.py
 │   ├── lexer.py      # מנתח לקסיקלי
 │   ├── parser.py     # מנתח תחבירי
@@ -251,6 +305,7 @@ python tests/test_cli.py
 
 | פקודה | תיאור |
 |-------|-------|
+| `nachshon <file.נח>` | הרצת קובץ נחשון (ישירות) |
 | `nachshon run <file>` | הרצת קובץ נחשון |
 | `nachshon build <file>` | יצירת קובץ פייתון |
 | `nachshon repl` | מצב אינטראקטיבי |
@@ -262,10 +317,13 @@ python tests/test_cli.py
 
 ```bash
 # הצגת קוד פייתון לפני הרצה
-python src/cli.py run --show-python examples/01_שלום_עולם.נח
+nachshon run --show-python examples/01_שלום_עולם.נח
 
 # בנייה לקובץ ספציפי
-python src/cli.py build examples/01_שלום_עולם.נח -o output.py
+nachshon build examples/01_שלום_עולם.נח -o output.py
+
+# הצגת גרסה
+nachshon --version
 ```
 
 ---

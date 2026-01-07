@@ -169,9 +169,12 @@ export class NachshonEditorProvider implements vscode.CustomTextEditorProvider {
                     
                     .cm-s-nachshon-dark .CodeMirror-gutters {
                         background: var(--vscode-editorGutter-background, #1e1e1e);
-                        border-left: 1px solid var(--vscode-editorGroup-border, #444);
-                        border-right: none;
+                        border-right: 1px solid var(--vscode-editorGroup-border, #444);
+                        border-left: none;
                         direction: ltr;
+                        position: absolute;
+                        right: 0;
+                        left: auto !important;
                     }
                     
                     .cm-s-nachshon-dark .CodeMirror-linenumber {
@@ -207,7 +210,7 @@ export class NachshonEditorProvider implements vscode.CustomTextEditorProvider {
                     .cm-s-nachshon-dark .cm-variable-2 { color: #4fc1ff; }
                     .cm-s-nachshon-dark .cm-string { color: #ce9178; }
                     .cm-s-nachshon-dark .cm-number { color: #b5cea8; }
-                    .cm-s-nachshon-dark .cm-comment { color: #6a9955; font-style: italic; }
+                    .cm-s-nachshon-dark .cm-comment { color: #6a9955; }
                     .cm-s-nachshon-dark .cm-operator { color: #d4d4d4; }
                     .cm-s-nachshon-dark .cm-punctuation { color: #d4d4d4; }
                     .cm-s-nachshon-dark .cm-atom { color: #569cd6; }
@@ -230,12 +233,25 @@ export class NachshonEditorProvider implements vscode.CustomTextEditorProvider {
                     .cm-s-nachshon-dark .CodeMirror-sizer {
                         direction: rtl;
                         margin-right: 0 !important;
+                        margin-left: 48px !important;
                         padding-right: 0 !important;
                     }
                     
                     .cm-s-nachshon-dark .CodeMirror-scroll {
                         padding-right: 8px;
                         margin-right: 0;
+                    }
+                    
+                    /* Move gutters to right side */
+                    .cm-s-nachshon-dark .CodeMirror-gutter-wrapper {
+                        left: auto !important;
+                        right: 0 !important;
+                    }
+                    
+                    .cm-s-nachshon-dark .CodeMirror-linenumber {
+                        text-align: right;
+                        padding-right: 8px;
+                        padding-left: 4px;
                     }
                 </style>
             </head>

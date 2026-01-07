@@ -57,13 +57,14 @@ html, body {
     padding-left: 4px;
 }
 
-/* Gutters (line numbers) */
+/* Gutters (line numbers) - Right side for RTL */
 .cm-gutters {
     direction: ltr;
     background-color: var(--vscode-editorGutter-background, #1e1e1e);
-    border-left: 1px solid var(--vscode-editorGroup-border, #444);
-    border-right: none;
+    border-right: 1px solid var(--vscode-editorGroup-border, #444);
+    border-left: none;
     color: var(--vscode-editorLineNumber-foreground, #858585);
+    order: 1;
 }
 
 .cm-gutter {
@@ -146,7 +147,6 @@ html, body {
 /* Comments - Green */
 .tok-comment {
     color: var(--vscode-symbolIcon-commentForeground, #6a9955);
-    font-style: italic;
 }
 
 /* Functions - Yellow */

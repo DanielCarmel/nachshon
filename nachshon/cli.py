@@ -459,6 +459,20 @@ def main():
     ast_parser = subparsers.add_parser('ast', help='הצגת עץ תחביר (דיבאג)')
     ast_parser.add_argument('file', help='קובץ')
     
+    # Check if the first argument is a .נח file (direct execution without 'run' command)
+    if len(sys.argv) > 1 and sys.argv[1].endswith(EXTENSION) and os.path.isfile(sys.argv[1]):
+        # Direct file execution: nachshon file.נח [--show-python] [--debug]
+        try:
+            show_python = '--show-python' in sys.argv or '-p' in sys.argv
+            run_command(sys.argv[1], show_python)
+            return
+        except NachshonError as e:
+            print_error(str(e))
+            sys.exit(1)
+        except (LexerError, ParserError, TranspilerError) as e:
+            print_error(str(e))
+            sys.exit(1)
+    
     args = parser.parse_args()
     
     try:

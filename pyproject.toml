@@ -30,7 +30,7 @@ classifiers = [
 ]
 
 [project.scripts]
-nachshon = "src.cli:main"
+nachshon = "nachshon.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/nachshon-lang/nachshon"
@@ -39,7 +39,7 @@ Issues = "https://github.com/nachshon-lang/nachshon/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["src*"]
+include = ["nachshon*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

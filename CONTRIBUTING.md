@@ -70,10 +70,10 @@ pip install pytest pytest-cov
 
 ```bash
 # הרצת קובץ לדוגמה / Run an example file
-python src/cli.py run examples/01_שלום_עולם.נח
+python nachshon/cli.py run examples/01_שלום_עולם.נח
 
 # הפעלת REPL
-python src/cli.py repl
+python nachshon/cli.py repl
 
 # הרצת בדיקות / Run tests
 cd tests && python -m pytest -v
@@ -94,7 +94,7 @@ cd tests && python -m pytest -v
 
 ```
 nachshon/
-├── src/
+├── nachshon/
 │   ├── lexer.py      # מנתח לקסיקלי
 │   ├── parser.py     # מנתח תחבירי
 │   ├── transpiler.py # ממיר לפייתון
@@ -133,7 +133,7 @@ python -m pytest test_lexer.py -v
 python -m pytest test_parser.py -v
 
 # עם כיסוי קוד / With coverage
-python -m pytest --cov=../src --cov-report=html
+python -m pytest --cov=../nachshon --cov-report=html
 ```
 
 ### כתיבת בדיקות / Writing Tests

@@ -6,11 +6,49 @@ name: CI
 on:
   push:
     branches: [ main, master, develop ]
+    paths:
+      - 'nachshon/**'
+      - 'tests/**'
+      - 'examples/**'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - 'nachshon/**'
+      - 'tests/**'
+      - 'examples/**'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/ci.yml'
 
 jobs:
+  # Detect which files changed to conditionally run jobs
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      src: ${{ steps.filter.outputs.src }}
+      tests: ${{ steps.filter.outputs.tests }}
+      examples: ${{ steps.filter.outputs.examples }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          src:
+            - 'nachshon/**'
+            - 'requirements.txt'
+            - 'pyproject.toml'
+          tests:
+            - 'tests/**'
+          examples:
+            - 'examples/**'
+
   test:
+    needs: changes
+    if: ${{ needs.changes.outputs.src == 'true' || needs.changes.outputs.tests == 'true' || needs.changes.outputs.examples == 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -37,7 +75,7 @@ jobs:
         cd tests
         python -m pytest -v --tb=short
       env:
-        PYTHONPATH: ${{ github.workspace }}/src
+        PYTHONPATH: ${{ github.workspace }}/nachshon
     
     - name: Run example files
       shell: bash
@@ -45,22 +83,24 @@ jobs:
         cd ${{ github.workspace }}
         for file in examples/*.נח; do
           echo "🚀 Testing: $file"
-          python src/cli.py run "$file" || exit 1
+          python nachshon/cli.py run "$file" || exit 1
         done
     
     - name: Test REPL
       shell: bash
       run: |
-        echo -e "x = 5\nהדפס(x)\nיציאה" | python src/cli.py repl
+        echo -e "x = 5\nהדפס(x)\nיציאה" | python nachshon/cli.py repl
     
     - name: Test build command
       shell: bash
       run: |
-        python src/cli.py build "examples/01_שלום_עולם.נח" -o test_output.py
+        python nachshon/cli.py build "examples/01_שלום_עולם.נח" -o test_output.py
         cat test_output.py
         rm test_output.py
 
   lint:
+    needs: changes
+    if: ${{ needs.changes.outputs.src == 'true' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -77,11 +117,13 @@ jobs:
     
     - name: Check code style with flake8
       run: |
-        flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+        flake8 nachshon/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 nachshon/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
       continue-on-error: true
 
   coverage:
+    needs: changes
+    if: ${{ needs.changes.outputs.src == 'true' || needs.changes.outputs.tests == 'true' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -99,12 +141,13 @@ jobs:
     - name: Run tests with coverage
       run: |
         cd tests
-        python -m pytest --cov=../src --cov-report=xml --cov-report=term
+        python -m pytest --cov=../nachshon --cov-report=xml --cov-report=term
       env:
-        PYTHONPATH: ${{ github.workspace }}/src
+        PYTHONPATH: ${{ github.workspace }}/nachshon
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
         file: ./tests/coverage.xml
         fail_ci_if_error: false
+

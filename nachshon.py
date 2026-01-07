@@ -8,8 +8,8 @@ Run this script to start the CLI
 import sys
 import os
 
-# Add src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+# Add nachshon directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'nachshon'))
 
 from cli import main
 
